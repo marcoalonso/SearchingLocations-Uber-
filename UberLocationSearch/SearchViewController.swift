@@ -6,8 +6,15 @@
 //
 
 import UIKit
+import CoreLocation
+
+protocol SearchViewControllerDelegate: AnyObject {
+    func searchViewController(_ vc: SearchViewController, didSelectLocationWith coordinates: CLLocationCoordinate2D?)
+}
 
 class SearchViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource {
+    
+    weak var delegate: SearchViewControllerDelegate?
     
     private let label: UILabel = {
         let label = UILabel()
@@ -42,6 +49,7 @@ class SearchViewController: UIViewController, UITextFieldDelegate, UITableViewDe
         view.addSubview(tableView)
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.backgroundColor = .secondarySystemBackground
         field.delegate = self
     }
     
@@ -76,13 +84,17 @@ class SearchViewController: UIViewController, UITextFieldDelegate, UITableViewDe
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         cell.textLabel?.text = locations[indexPath.row].title
         cell.textLabel?.numberOfLines = 0
+        cell.contentView.backgroundColor = .secondarySystemBackground
+        cell.backgroundColor = .secondarySystemBackground
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         //notify map controller to show pin at selected place
-        let cordinate = locations[indexPath.row].coordinates
+        let coordinate = locations[indexPath.row].coordinates
+        
+        delegate?.searchViewController(self, didSelectLocationWith: coordinate)
     }
 
 }

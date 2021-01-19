@@ -8,18 +8,21 @@
 import UIKit
 import MapKit
 import FloatingPanel
+import CoreLocation
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, SearchViewControllerDelegate {
 
     let mapView = MKMapView()
+    let panel = FloatingPanelController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(mapView)
         title = "Mi App"
         
-        let panel = FloatingPanelController()
-        panel.set(contentViewController: SearchViewController())
+        let searchVC = SearchViewController()
+        searchVC.delegate = self
+        panel.set(contentViewController: searchVC)
         panel.addPanel(toParent: self)
         
     }
@@ -29,6 +32,27 @@ class ViewController: UIViewController {
         mapView.frame = view.bounds
     }
 
-
+    func searchViewController(_ vc: SearchViewController, didSelectLocationWith coordinates: CLLocationCoordinate2D?) {
+        guard let coordinates = coordinates else {
+            return
+        }
+        panel.move(to: .tip, animated: true)
+        //dismiss(animated: true, completion: nil)
+        mapView.removeAnnotations(mapView.annotations)
+        
+        let pin = MKPointAnnotation()
+        pin.coordinate = coordinates
+        mapView.addAnnotation(pin)
+        
+        mapView.setRegion(MKCoordinateRegion(
+            center: coordinates,
+            span: MKCoordinateSpan(
+                latitudeDelta: 0.5,
+                longitudeDelta: 0.5
+            )
+        ),
+        animated: true
+        )
+    }
 }
 

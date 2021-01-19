@@ -16,8 +16,6 @@ struct Location {
 class LocationManager: NSObject {
     static let shared = LocationManager()
     
-    let manager = CLLocationManager()
-    
     public func findLocations(with query: String, completion: @escaping (([Location]) -> Void )) {
         let geoCoder = CLGeocoder()
         
@@ -31,13 +29,26 @@ class LocationManager: NSObject {
                 if let locationName = place.name {
                     name += locationName
                 }
+                
+                if let adminRegion = place.administrativeArea {
+                    name += ", \(adminRegion)"
+                }
+                if let locality = place.locality {
+                    name += ", \(locality)"
+                }
+                if let country = place.country {
+                    name += ", \(country)"
+                }
+                
+                print(place)
+                
                 let result = Location(
                     title: name,
                     coordinates: place.location?.coordinate
                 )
-                
                 return result
             })
+            completion(models)
         }
         
     }
